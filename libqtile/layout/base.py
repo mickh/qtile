@@ -41,6 +41,7 @@ class Layout(CommandObject, configurable.Configurable, metaclass=ABCMeta):
         CommandObject.__init__(self)
         configurable.Configurable.__init__(self, **config)
         self.add_defaults(Layout.defaults)
+        self.previous_border_width = 0
 
     def layout(self, windows, screen_rect):
         assert windows, "let's eliminate unnecessary calls"
@@ -104,6 +105,25 @@ class Layout(CommandObject, configurable.Configurable, metaclass=ABCMeta):
     def cmd_info(self):
         """Return a dictionary of info for this object"""
         return self.info()
+
+    def cmd_toggle_border(self):
+        next_prev = self.border_width
+        self.border_width = self.previous_border_width
+        self.previous_border_width = next_prev
+        self.group.layout_all()
+
+    def cmd_increase_margin(self):
+        self.margin += 10
+        self.group.layout_all()
+
+    def cmd_decrease_margin(self):
+        new_margin = self.margin - 10
+        if new_margin < 0:
+            new_margin = 0
+
+        self.margin = new_margin
+
+        self.group.layout_all()
 
     @abstractmethod
     def add(self, client):
